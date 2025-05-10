@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    Это страница категории {{ category }}
+    {% for page in pages %}
+    <h1>{{ page.title }}</h1>
+    {{ page.content|safe }}<br>
+    {{ page.modified_date}} {{page.last_modified_user_id}}
+    {% endfor %}
+</div>
+{% endblock content %}

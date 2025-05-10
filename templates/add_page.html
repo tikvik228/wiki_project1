@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <div>{{message}}</div>
+  <h2>{{ title }}</h2>
+  <form method="POST" action="">
+    {{ form.hidden_tag() }}
+    {{ form.csrf_token }}
+
+    <!-- Title Field -->
+    <div class="form-group">
+      {{ form.title.label(class="form-control-label") }}
+      {{ form.title(class="form-control") }}
+      {% if form.title.errors %}
+        <div class="alert alert-danger mt-2">
+          {% for error in form.title.errors %}
+            <small>{{ error }}</small><br>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Content Field -->
+    <div class="form-group">
+      {{ form.content.label(class="form-control-label") }}
+      {{ form.content(class="form-control", rows=5) }}
+      {% if form.content.errors %}
+        <div class="alert alert-danger mt-2">
+          {% for error in form.content.errors %}
+            <small>{{ error }}</small><br>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Categories Field (Multi-Select) -->
+    <div class="form-group">
+      {{ form.categories.label(class="form-control-label") }}
+      {{ form.categories(class="form-control") }}
+      <small class="text-muted">Hold Ctrl/Cmd to select multiple.</small>
+      {% if form.categories.errors %}
+        <div class="alert alert-danger mt-2">
+          {% for error in form.categories.errors %}
+            <small>{{ error }}</small><br>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Submit Button -->
+    <div class="form-group mt-4">
+      {{ form.submit(class="btn btn-primary") }}
+    </div>
+  </form>
+    {{ ckeditor.load() }}
+    {{ ckeditor.config(name='content') }}
+
+</div>
+{% endblock %}

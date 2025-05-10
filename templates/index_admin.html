@@ -1,0 +1,9 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+
+<h3>Добро пожаловать, {{ username}}</h3><br>
+<a href="{{ url_for('pages.add_page') }}">СОЗДАТЬ СТАТЬЮ</a><br>
+<a href="#">СОЗДАТЬ КАТЕГОРИЮ</a><br>
+<a href="{{ url_for('main.uploaded_files', filename='))).png') }}">ПИКЧА ИЗ ФАЙЛОВ</a>
+{% endblock body %}

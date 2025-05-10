@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<meta charset="utf-8">
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <a href="{{ url_for('pages.show_page', id=versions[0].page) if versions else '#' }}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> Назад к статье
+  </a>
+  <h2 class="mb-0">{{ title }}</h2>
+  <div></div> <!-- Empty div for spacing balance -->
+</div>
+{% for vers in versions %}
+<h3>Версия от {{vers.modified_date.strftime('%B %d, %Y at %H:%M')}}, правка пользователя {{ vers.user.username}}
+    {% if vers.is_rollback%}(Откат до правки){% endif %}
+</h3>
+<br>
+<div>
+    <a href="{{url_for('pages.show_old_page', old_id=vers)}}" class="btn btn-warning">Посмотреть</a>
+    <a href="{{url_for('pages.rollback_page', old_id=vers, id=vers.page)}}" class="btn btn-danger">Откатить до этой версии</a>
+</div>
+{% endfor %}
+{% endblock %}
