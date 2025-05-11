@@ -1,5 +1,5 @@
  body {
-            background-image: url('../image/login_image.jpg');
+            background-image: url('/static/image/service_files/login_image.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;

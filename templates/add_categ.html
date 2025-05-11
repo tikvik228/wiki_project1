@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <div>{{message}}</div>
+  <h2>{{ title }}</h2>
+  <form method="POST" action="" novalidate>
+    {{ form.hidden_tag() }}
+    {{ form.csrf_token }}
+
+    <!-- Title Field -->
+    <div class="form-group">
+      {{ form.name.label(class="form-control-label") }}
+      {{ form.name(class="form-control") }}
+      {% if form.name.errors %}
+        <div class="alert alert-danger mt-2">
+          {% for error in form.name.errors %}
+            <small>{{ error }}</small><br>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Submit Button -->
+    <div class="form-group mt-4">
+      {{ form.submit(class="btn btn-primary") }}
+    </div>
+  </form>
+
+</div>
+{% endblock %}

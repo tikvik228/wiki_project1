@@ -27,7 +27,16 @@
   </div>
   <!-- Last edit info (subtle header) -->
   <div class="last-edit-info">
-    {{message}}
+      {% if old %}
+      Версия от {{ page.modified_date.strftime('%B %d, %Y at %H:%M') }},
+      {% else %}
+      Текущая версия от {{ page.modified_date.strftime('%B %d, %Y at %H:%M') }},
+      {% endif %}
+        {% if user %}
+      by <a href="{{ url_for('users.show_user', id=user) }}">{{ user.username }}</a>
+        {% else %}
+      by unknown user
+        {% endif %}
   </div>
 
   <!-- Article title -->

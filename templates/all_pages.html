@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="my-4">Все страницы</h1>
+
+    <ul class="list-unstyled" style="line-height: 1.0;">
+        {% for page in pages %}
+        <li class="mb-4">
+            <a href="{{ url_for('pages.show_page', id=page) }}"
+               class="text-decoration-none"
+               style="font-size: 1.5rem;">
+                <strong>{{ page.title }}</strong>
+            </a>
+        </li>
+        {% else %}
+        <li class="text-muted">No pages available</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

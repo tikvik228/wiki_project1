@@ -17,5 +17,5 @@ class PageForm(FlaskForm):
     title = StringField('название статьи', validators=[DataRequired()])
     content = CKEditorField('контент', validators=[DataRequired()])
     categories = QuerySelectMultipleField('выберете категории',
-                                  query_factory=func_categ)
+                                  query_factory=func_categ, validators=[DataRequired()])
     submit = SubmitField('СОХРАНИТЬ')

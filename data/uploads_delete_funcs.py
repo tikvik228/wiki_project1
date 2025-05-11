@@ -2,6 +2,7 @@ import os
 from data import db_session
 from data.pages import Page
 from data.history_pages import HistoryPage
+from data.uploads_model import Uploads
 from re import findall
 from urllib.parse import unquote
 from datetime import datetime, timedelta
@@ -62,6 +63,7 @@ def page_file_delete(app, id):
             try:
                 if os.path.exists(file_path):
                     os.remove(file_path)
+                    #file_in_db = db_sess.query(Uploads).
                     app.logger.info(f"Deleted file: {file_path}")
                 else:
                     app.logger.warning(f"File not found: {file_path}")

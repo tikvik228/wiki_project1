@@ -4,6 +4,6 @@
 
 <h3>Добро пожаловать, {{ username}}</h3><br>
 <a href="{{ url_for('pages.add_page') }}">СОЗДАТЬ СТАТЬЮ</a><br>
-<a href="#">СОЗДАТЬ КАТЕГОРИЮ</a><br>
-<a href="{{ url_for('main.uploaded_files', filename='))).png') }}">ПИКЧА ИЗ ФАЙЛОВ</a>
+<a href="{{ url_for('categories.add_category') }}">СОЗДАТЬ КАТЕГОРИЮ</a><br>
+<a href="{{ url_for('main.all_files') }}">ПОСМОТРЕТЬ ЗАГРУЖЕННЫЕ ФАЙЛЫ</a>
 {% endblock body %}

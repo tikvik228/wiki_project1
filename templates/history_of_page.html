@@ -10,13 +10,20 @@
   <div></div> <!-- Empty div for spacing balance -->
 </div>
 {% for vers in versions %}
-<h3>Версия от {{vers.modified_date.strftime('%B %d, %Y at %H:%M')}}, правка пользователя {{ vers.user.username}}
+    <h3>Версия от {{vers.modified_date.strftime('%B %d, %Y at %H:%M')}}, правка пользователя
+    {% if vers.user %}
+        <a href="{{ url_for("users.show_user", id=vers.user) }}">{{ vers.user.username}}</a>
+    {% else %}
+        unknown user
+    {% endif %}
     {% if vers.is_rollback%}(Откат до правки){% endif %}
 </h3>
 <br>
 <div>
     <a href="{{url_for('pages.show_old_page', old_id=vers)}}" class="btn btn-warning">Посмотреть</a>
+    {% if current_user.is_authenticated %}
     <a href="{{url_for('pages.rollback_page', old_id=vers, id=vers.page)}}" class="btn btn-danger">Откатить до этой версии</a>
+    {% endif %}
 </div>
 {% endfor %}
 {% endblock %}

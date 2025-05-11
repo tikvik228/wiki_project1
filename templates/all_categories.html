@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="my-4">Все категории</h1>
+
+    <ul class="list-unstyled" style="line-height: 1.0;">
+        {% for categ in categs %}
+        <li class="mb-4">
+            <a href="{{ url_for('categories.show_category', id=categ) }}"
+               class="text-decoration-none"
+               style="font-size: 1.5rem;">
+                <strong>{{ categ.name }}</strong>
+            </a>
+        </li>
+        {% else %}
+        <li class="text-muted">No categories available</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

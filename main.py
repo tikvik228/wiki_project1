@@ -1,5 +1,7 @@
+import flask
 from flask import Flask, render_template, redirect, url_for, request, send_from_directory, abort, flash, Blueprint
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from sqlalchemy import desc, func
 from flask_admin import Admin
 from data import db_session
 from data.users import User
@@ -11,19 +13,22 @@ from sqlite3 import IntegrityError
 from data.register import RegisterForm
 from data.login_form import LoginForm
 from data.page_form import PageForm
+from data.user_form import UserForm
+from data.category_form import CategForm
 from flask_ckeditor import CKEditor, upload_success, upload_fail
 from data.flask_admin_views import DashBoardView, AnyPageView, UserModelView, PagesModelView, CategoriesModelView
 from data.slug_conventer import IDSlugConverter
 from datetime import datetime
 import os
-from re import findall
-from urllib.parse import unquote
+from shutil import rmtree
+from PIL import Image
 from apscheduler.schedulers.background import BackgroundScheduler
 from data.uploads_delete_funcs import cleanup_orphaned_uploads, page_file_delete
 
 app = Flask(__name__)
 scheduler = BackgroundScheduler()
 UPLOAD_FOLDER = 'static/image/uploads'
+user_profiles_folder = 'static/image/user_profiles'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 app.config['SECRET_KEY'] = 'hfim_secret_key'
@@ -33,6 +38,7 @@ app.url_map.converters['id_slug'] = IDSlugConverter
 
 ckeditor = CKEditor(app)
 login_manager = LoginManager()
+login_manager.login_message = 'Авторизуйтесь, чтобы попасть на эту страницу.'
 login_manager.init_app(app)
 admin = Admin(name='Админ', index_view=DashBoardView(), endpoint='admin')
 admin.init_app(app)
@@ -75,21 +81,12 @@ def main_func():
     print(new_page.categories, new_category.pages, sep="\n")
     db_sess.add(new_page)
     db_sess.commit()'''
-    app.run()
+    app.run(debug=True)
 
 
 @main.route('/')
 def home():
     return render_template('index.html', title="Главная")
-
-'''@users.route('/admin', methods=['GET'])
-def admin_panel():
-    return redirect(url_for('any_page'))'''
-@categories.route('/categories/<ctg_name>')
-def category_page(ctg_name):
-    db_sess = db_session.create_session()
-    ctg = db_sess.query(Category).filter(Category.name == ctg_name).first()
-    return render_template('category.html', category=ctg_name, pages=ctg.pages)
 
 
 @users.route('/register', methods=['GET', 'POST'])
@@ -147,9 +144,94 @@ def login():
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
 
-@users.route('/admin', methods=['GET'])
-def admin_panel():
-    return redirect(url_for('any_page'))
+@users.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('main.home'))
+
+
+@users.route('/users/<id_slug(attr="username"):id>')
+def show_user(id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == id).first()
+    if not user:
+        abort(404)
+    return render_template('user_profile.html', user=user)
+
+@users.route('/users/<id_slug(attr="username"):id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_user(id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == id).first()
+    if not user:
+        abort(404)
+    if user.id != current_user.id:
+        flash('вы не можете изменять информацию о чужом аккаунте', 'danger')
+        return redirect(url_for('main.home'))
+    form = UserForm()
+    if request.method == "GET":
+        form.username.data = user.username
+        form.email.data = user.email
+        form.about.data = user.about
+
+    if form.validate_on_submit():
+        print("Form errors:", form.errors)  # Check validation errors
+        print("Files in request:", request.files)
+        if db_sess.query(User).filter(User.email == form.email.data, User.id != user.id).first():
+            return render_template('user_edit.html', title='Изменение данных пользователя',
+                                   form=form,
+                                   message="Пользователь с такой почтой уже есть")
+        if db_sess.query(User).filter(User.username == form.username.data, User.id != user.id).first():
+            return render_template('user_edit.html', title='Изменение данных пользователя',
+                                   form=form,
+                                   message="Пользователь с таким ником уже есть")
+
+        if os.path.isdir(os.path.join(user_profiles_folder, user.username)):
+            path_one = os.path.join(user_profiles_folder, user.username)
+            path_two = os.path.join(user_profiles_folder, form.username.data)
+            os.rename(path_one, path_two)
+        else:
+            os.makedirs(os.path.join(user_profiles_folder, form.username.data))
+
+        user.username = form.username.data
+        user.email = form.email.data
+        user.about = form.about.data
+        if form.image_file.data:
+            if user.image_file:
+                os.remove(os.path.join(user_profiles_folder, user.username, user.image_file))
+            img = Image.open(form.image_file.data)
+            img.thumbnail((150, 150))
+            img.save(os.path.join(user_profiles_folder, user.username, form.image_file.data.filename))
+            user.image_file = form.image_file.data.filename
+        db_sess.commit()
+        return redirect(url_for('users.show_user', id=user))
+    return render_template('user_edit.html', title='Изменение данных пользователя', form=form)
+
+@users.route('/users/<id_slug(attr="username"):id>/delete', methods=['GET', 'POST'])
+@login_required
+def delete_user(id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == id).first()
+    if not user:
+        abort(404)
+    if user.id != current_user.id and current_user.role != 'admin':
+        flash('вы не можете удалить этот аккаунт', 'danger')
+        return redirect(url_for('main.home'))
+    path = os.path.join(user_profiles_folder, user.username)
+    if os.path.exists(path):
+        rmtree(path)
+    db_sess.delete(user)
+    db_sess.commit()
+    return redirect(url_for('main.home'))
+
+
+@pages.route('/pages')
+def all_pages():
+    db_sess = db_session.create_session()
+    pages = db_sess.query(Page).order_by(func.lower(Page.title)).all()
+    return render_template('all_pages.html', pages=pages)
+
 
 @pages.route('/pages/<id_slug:id>', methods=['GET', 'POST'])
 def show_page(id):
@@ -157,11 +239,8 @@ def show_page(id):
     page = db_sess.query(Page).filter(Page.id == id).first()
     if not page:
         abort(404)
-    last_user_name = db_sess.query(User).filter(page.last_modified_user_id == User.id).first()
-    if not last_user_name:
-        last_user_name = "unknown_user"
-    message = f"Текущая Версия от {page.modified_date.strftime('%B %d, %Y at %H:%M')} by {last_user_name}"
-    return render_template('page.html', page=page, message=message, curr_page=page)
+    last_user = db_sess.query(User).filter(page.last_modified_user_id == User.id).first()
+    return render_template('page.html', page=page, curr_page=page, user=last_user)
 
 @pages.route('/create_page', methods=['GET', 'POST'])
 @login_required
@@ -189,7 +268,7 @@ def add_page():
         db_sess.add(old_page)
         db_sess.commit()
         print(page.categories)
-        return redirect(url_for('main.home'))
+        return redirect(url_for('pages.show_page', id=page))
     return render_template('add_page.html', title='Добавление страницы', form=add_form)
 
 
@@ -263,8 +342,8 @@ def show_old_page(old_id):
     h_page = db_sess.query(HistoryPage).filter(HistoryPage.id == old_id).first()
     if not h_page:
         abort(404)
-    message = f"Версия от {h_page.modified_date.strftime('%B %d, %Y at %H:%M')}, by {h_page.user.username}"
-    return render_template('page.html', page=h_page, message=message, curr_page=h_page.page, old=True)
+    return render_template('page.html', page=h_page, curr_page=h_page.page, old=True,
+                            user=h_page.user)
 
 
 @pages.route('/pages/<id_slug:id>/rollback/<id_slug:old_id>')
@@ -289,13 +368,68 @@ def rollback_page(id, old_id):
         abort(400)
     return redirect(url_for('pages.show_page', id=page))
 
+@pages.route('/categories')
+def all_categories():
+    db_sess = db_session.create_session()
+    categs = db_sess.query(Category).order_by(func.lower(Category.name)).all()
+    return render_template('all_categories.html', categs=categs)
 
+@categories.route('/categories/<id_slug:id>')
+def show_category(id):
+    db_sess = db_session.create_session()
+    ctg = db_sess.query(Category).filter(Category.id == id).first()
+    return render_template('category.html', category=ctg)
 
-@users.route('/logout')
+@categories.route('/create_category', methods=['GET', 'POST'])
 @login_required
-def logout():
-    logout_user()
+def add_category():
+    add_form = CategForm()
+    if add_form.validate_on_submit():
+        db_sess = db_session.create_session()
+        if db_sess.query(Category).filter(Category.name == add_form.name.data).first():
+            return render_template('add_categ.html', title='Добавление категории',
+                                   form=add_form,
+                                   message="Такая категория уже существует")
+        categ = Category(name=add_form.name.data)
+        db_sess.add(categ)
+        db_sess.commit()
+        return redirect(url_for('categories.show_category', id=categ))
+    return render_template('add_categ.html', title='Добавление категории', form=add_form)
+
+@categories.route('/categories/<id_slug:id>/edit', methods=['GET', 'POST'])
+@login_required
+def category_edit(id):
+    form = CategForm()
+    db_sess = db_session.create_session()
+    categ = db_sess.query(Category).filter(Category.id == id).first()
+    if not categ:
+        abort(404)
+    if request.method == "GET":
+        form.name.data = categ.name
+
+    if form.validate_on_submit():
+        categ.name = form.name.data
+        db_sess.commit()
+        return redirect(url_for('categories.show_category', id=categ))
+    return render_template('add_categ.html', title=f'Редактирование {categ.name}', form=form)
+
+
+@categories.route('/categories/<id_slug:id>/delete', methods=['GET', 'POST'])
+@login_required
+def category_delete(id):
+    if current_user.role != 'admin':
+        flash('у вас недостаточно прав для этого действия', 'warning')
+    else:
+        db_sess = db_session.create_session()
+        categ = db_sess.query(Category).filter(Category.id == id).first()
+        if categ:
+            db_sess.delete(categ)
+            db_sess.commit()
+            flash('Категория была успешно удалена!', 'success')
+        else:
+            abort(404)
     return redirect(url_for('main.home'))
+
 
 @main.route('/files/<path:filename>')
 def uploaded_files(filename):
@@ -304,7 +438,7 @@ def uploaded_files(filename):
 @main.route('/files')
 def all_files():
     db_sess = db_session.create_session()
-    files = db_sess.query(Uploads).all()
+    files = db_sess.query(Uploads).order_by(desc(Uploads.date)).all()
     return render_template('all_files.html', files=files)
 
 
@@ -329,10 +463,9 @@ def upload():
 
 
 
-
+@app.template_global()
+def file_exists(filepath):
+    return os.path.exists(filepath)
 
 if __name__ == '__main__':
     main_func()
-
-    ''''"<p><img src=""/files/WEEEED.jpg"" style=""height:848px; width:1280px"" /><img src=""/files/%D0%90%D0%90%D0%90%D0%90%20%D0%9C%D0%95%D0%A2%D0%95%D0%9E%D0%A0%D0%98%D0%A2.jpg"" style=""height:602px; width:952px"" /></p>
-    "'''

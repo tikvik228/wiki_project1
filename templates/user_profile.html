@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Left side - User's edits and files -->
+        <div class="col-md-8">
+            <div class="row">
+                <!-- User's Edits Column -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>User's Edits</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if user.edits %}
+                                <ul class="list-group">
+                                    {% for edit in user.edits|sort(attribute='modified_date', reverse=True) %}
+                                        {% if not edit.is_rollback %}
+                                        <li class="list-group-item">
+                                            <a href="{{ url_for('pages.show_old_page', old_id=edit) }}">
+                                                {{ edit.title }} from {{ edit.modified_date.strftime('%Y-%m-%d') }}
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted">No edits yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User's Files Column -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>User's Files</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if user.files %}
+                                <ul class="list-group">
+                                    {% for file in user.files|sort(attribute='date', reverse=True) %}
+                                        <li class="list-group-item">
+                                        <a href="{{ url_for('main.uploaded_files', filename=file.filename) }}">
+                                            {{ file.filename }} ({{ file.date.strftime('%Y-%m-%d') }})
+                                        </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted">No files uploaded yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right side - User info card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-end">
+                        <div class="btn-group">
+                            {% if current_user == user %}
+                            <a href="{{ url_for('users.edit_user', id=user) }}" class="btn btn-sm btn-outline-primary" title="Edit Profile">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% endif %}
+                            {% if current_user == user or current_user.is_admin %}
+                            <a href="{{ url_for('users.delete_user', id=user) }}" class="btn btn-sm btn-outline-danger" title="Delete Profile">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                </div>
+                <div class="card-body text-center">
+                    {% if user.image_file %}
+                    <img class="rounded-circle account-img mb-3" src="{{ url_for('static', filename='image/user_profiles/' + user.username + '/' + user.image_file) }}"
+                         alt="Profile picture" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                    <img class="rounded-circle account-img mb-3" src="{{ url_for('static', filename='image/user_profiles/default_pic.jpg') }}"
+                         alt="Profile picture" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% endif %}
+                    <h3 class="account-heading">{{ user.username }}</h3>
+
+                    {% if current_user.is_authenticated and current_user.id == user.id %}
+                        <p class="text-secondary">{{ user.email }}</p>
+                    {% endif %}
+
+                    <p class="text-muted">{{ user.about or "No information provided" }}</p>
+
+                    <div class="text-left mt-4">
+                        <p><strong>Role:</strong> {{ user.role }}</p>
+                        <p><strong>Member since:</strong> {{ user.created_date.strftime('%Y-%m-%d') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h1 class="my-4">Все загруженные файлы</h1>
+
+    <div class="row">
+        {% for file in files %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                {% set file_path = 'static/image/uploads/' + file.filename %}
+                {% if file.filename and file_exists(file_path) %}
+                    <img src="{{ url_for('static', filename='image/uploads/' + file.filename) }}"
+                         class="card-img-top"
+                         alt="{{ file.filename }}"
+                         style="max-height: 200px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                         style="height: 200px;">
+                        <p class="text-muted">Файл был удален</p>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ file.filename }}</h5>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            Uploaded by: {{ file.user.username }}<br>
+                            Date: {{ file.date.strftime('%Y-%m-%d %H:%M') }}
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

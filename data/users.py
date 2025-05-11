@@ -12,6 +12,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     username = sqlalchemy.Column(sqlalchemy.String(60), unique=True)
     email = sqlalchemy.Column(sqlalchemy.String(120),  unique=True, nullable=True)
+    image_file = sqlalchemy.Column(sqlalchemy.String(120))
     about = sqlalchemy.Column(sqlalchemy.String(300), nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String)
     role = sqlalchemy.Column(sqlalchemy.String, default='user')

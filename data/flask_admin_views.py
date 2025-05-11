@@ -59,8 +59,9 @@ class MyModelView(ModelView):
 
 class UserModelView(MyModelView):
     can_create = False
+    can_delete = False
     column_list = ('id', 'username', 'email', 'about', 'role', 'created_date')
-    form_excluded_columns = ['hashed_password']
+    form_excluded_columns = ['hashed_password', 'files', 'edits']
     column_searchable_list = ['username', 'email']
     form_widget_args = {
         'id': {
@@ -78,6 +79,9 @@ class UserModelView(MyModelView):
         },
         'created_date': {
             'readonly': True
+        },
+        'image_file': {
+            'readonly': True
         }
     }
     form_choices = {'role': [('admin', 'admin'), ('user', 'user')]}
@@ -92,6 +96,5 @@ class PagesModelView(MyModelView):
 
 
 class CategoriesModelView(MyModelView):
-    can_edit = False
     column_searchable_list = ['name']
     form_excluded_columns = ['pages', 'history_pages']
