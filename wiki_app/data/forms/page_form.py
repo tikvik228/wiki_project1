@@ -1,10 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, SubmitField, BooleanField
+from wtforms import StringField, SubmitField
 from wtforms_sqlalchemy.fields import QuerySelectMultipleField
 from wtforms.validators import DataRequired
 from flask_ckeditor import CKEditorField
-from data.db_session import create_session
-from data.categories import Category
+from wiki_app.data.db_session import create_session
+from wiki_app.data.models.categories import Category
 
 def func_categ():
     db_sess = create_session()

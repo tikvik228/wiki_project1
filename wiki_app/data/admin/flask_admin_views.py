@@ -1,13 +1,7 @@
-from flask import Flask, url_for, redirect, flash
-from flask_admin import Admin, expose, AdminIndexView, BaseView
+from flask import url_for, redirect, flash
+from flask_admin import expose, AdminIndexView, BaseView
 from flask_admin.contrib.sqla import ModelView
-from flask_admin.model import BaseModelView
 from flask_login import login_required, current_user
-from wtforms.validators import DataRequired
-from wtforms import StringField, TextAreaField, SelectField, IntegerField
-from flask_wtf import FlaskForm
-
-from data.db_session import create_session
 
 
 class DashBoardView(AdminIndexView):

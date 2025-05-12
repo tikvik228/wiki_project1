@@ -1,14 +1,13 @@
-from data import db_session
+from wiki_app.data import db_session
 from flask import jsonify
 from flask_restful import Resource, abort
-from werkzeug.security import generate_password_hash
-from data.pages import Page
-from data.users import User
-from data.categories import Category
-from data.history_pages import HistoryPage
-from api.page_reqparse import page_parser
+from wiki_app.data.models.pages import Page
+from wiki_app.data.models.users import User
+from wiki_app.data.models.categories import Category
+from wiki_app.data.models.history_pages import HistoryPage
+from wiki_app.api.page_reqparse import page_parser
 from datetime import datetime
-from data.uploads_delete_funcs import page_file_delete
+from wiki_app.data.utils.uploads_delete_funcs import page_file_delete
 
 upload_dir = 'static/image/uploads'
 

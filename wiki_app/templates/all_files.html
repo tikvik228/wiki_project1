@@ -7,8 +7,7 @@
         {% for file in files %}
         <div class="col-md-4 mb-4">
             <div class="card">
-                {% set file_path = 'static/image/uploads/' + file.filename %}
-                {% if file.filename and file_exists(file_path) %}
+                {% if file.filename and file_exists(file.filename) %}
                     <img src="{{ url_for('static', filename='image/uploads/' + file.filename) }}"
                          class="card-img-top"
                          alt="{{ file.filename }}"
