@@ -375,7 +375,7 @@ def rollback_page(id, old_id):
         abort(400)
     return redirect(url_for('pages.show_page', id=page))
 
-@pages.route('/categories')
+@categories.route('/categories')
 def all_categories():
     db_sess = db_session.create_session()
     categs = db_sess.query(Category).order_by(func.lower(Category.name)).all()

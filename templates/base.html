@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="ru ">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')  }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block title %}
         {% if title %}
@@ -18,55 +19,70 @@
 <div class="page-wrapper">
 {% block menu %}
 <header class="header">
-    <nav class="navbar navbar-expand-md navbar-dark bg-transparent sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent sticky-top">
         <div class="container-fluid">
-            <a href="{{ url_for('main.home') }}" class="navbar-brand"><img src="{{ url_for('static', filename='image/service_files/test_header.jpg') }}"></a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarResponsive">
+            <a href="{{ url_for('main.home') }}" class="navbar-brand">
+                <img src="{{ url_for('static', filename='image/service_files/test_header.jpg') }}" alt="Logo">
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarCollapse" aria-controls="navbarCollapse"
+                    aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarResponsive">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">ПЕРСОНАЖИ</a>
+
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            ИССЛЕДОВАТЬ
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('main.home') }}">ГЛАВНАЯ</a></li>
+                            <li><a class="dropdown-item" href={{ url_for('pages.all_pages') }}>ВСЕ СТРАНИЦЫ</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('categories.all_categories') }}">ВСЕ КАТЕГОРИИ</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">КОНЦОВКИ</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        ЛОКАЦИИ
-                         </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="#">НАЧАЛЬНАЯ КОМНАТА</a>
-                            <a class="dropdown-item" href="#">ТРУБА</a>
-                            <a class="dropdown-item" href="#">ГЛАВНЫЙ ЗАЛ</a>
-                        </div>
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            ЛОКАЦИИ
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="#">НАЧАЛЬНАЯ КОМНАТА</a></li>
+                            <li><a class="dropdown-item" href="#">ТРУБА</a></li>
+                            <li><a class="dropdown-item" href="#">ГЛАВНЫЙ ЗАЛ</a></li>
+                        </ul>
                     </li>
                 </ul>
 
-            </div>
-
-        </div>
-
-        <div class="container-fluid">
-            <div class="collapse navbar-collapse text-right" id="navbarResponsive2">
-                <ul class="navbar-nav ml-auto">
+                <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('pages.add_page') }}">СОЗДАТЬ СТАТЬЮ</a>
+                        <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            СОЗДАТЬ...
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('pages.add_page') }}">СТРАНИЦУ</a></li>
+                            <li><a class="dropdown-item" href={{ url_for('categories.add_category') }}>КАТЕГОРИЮ</a></li>
+                        </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('users.logout') }}">ВЫЙТИ</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('users.show_user', id=current_user) }}">ПРОФИЛЬ</a>
-                        </li>
-                        {% if current_user.is_admin%}
+                        {% if current_user.is_admin %}
                         <li class="nav-item">
                             <a class="nav-link" href="/admin">АДМИН</a>
                         </li>
                         {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('users.show_user', id=current_user) }}">ПРОФИЛЬ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('users.logout') }}">ВЫЙТИ</a>
+                        </li>
                     {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('users.register') }}">ЗАРЕГИСТРИРОВАТЬСЯ</a>
@@ -78,31 +94,89 @@
                 </ul>
             </div>
         </div>
-
     </nav>
-
 </header>
-{% endblock menu%}
+{% endblock menu %}
 
-    <div class="content-container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, mess in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show">
-                        {{ mess }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        {% block content %}{% endblock %}
-    </div>
-
+<div class="content-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, mess in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show">
+                    {{ mess }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</div>
 
 {% block footer %}
-<footer class="footer mt-auto py-3 bg-dark">Я ща застрелюсь<br>анодный музыка делает уц уц
+<footer class="footer mt-auto py-3 bg-dark">
+    Я ща застрелюсь<br>анодный музыка делает уц уц
 </footer>
 {% endblock footer %}
 </div>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7"
+        crossorigin="anonymous"></script>
+
+<!-- Guaranteed Dropdown Solution -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Debug info
+    console.log('Bootstrap status:', typeof bootstrap !== 'undefined' ? 'Loaded' : 'Not loaded');
+
+    // Manual dropdown control
+    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+
+    dropdownToggles.forEach(toggle => {
+        // Initialize Bootstrap dropdown
+        if (typeof bootstrap !== 'undefined') {
+            new bootstrap.Dropdown(toggle);
+        }
+
+        // Add manual click handler
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const dropdown = this.closest('.dropdown');
+            const menu = dropdown.querySelector('.dropdown-menu');
+
+            // Toggle display
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+                this.setAttribute('aria-expanded', 'false');
+            } else {
+                // Close all other dropdowns first
+                document.querySelectorAll('.dropdown-menu').forEach(m => {
+                    m.style.display = 'none';
+                });
+                document.querySelectorAll('.dropdown-toggle').forEach(t => {
+                    t.setAttribute('aria-expanded', 'false');
+                });
+
+                // Open this one
+                menu.style.display = 'block';
+                this.setAttribute('aria-expanded', 'true');
+            }
+        });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.dropdown')) {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.style.display = 'none';
+            });
+            document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+                toggle.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
+});
+</script>
 </body>
 </html>
