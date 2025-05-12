@@ -1,6 +1,7 @@
 import flask
 from flask import Flask, render_template, redirect, url_for, request, send_from_directory, abort, flash, Blueprint
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask_restful import Api
 from sqlalchemy import desc, func
 from flask_admin import Admin
 from data import db_session
@@ -24,6 +25,7 @@ from shutil import rmtree
 from PIL import Image
 from apscheduler.schedulers.background import BackgroundScheduler
 from data.uploads_delete_funcs import cleanup_orphaned_uploads, page_file_delete
+from api.page_resourses import PageResource, PageListResource
 
 app = Flask(__name__)
 scheduler = BackgroundScheduler()
@@ -35,6 +37,8 @@ app.config['SECRET_KEY'] = 'hfim_secret_key'
 app.config['CKEDITOR_FILE_UPLOADER'] = 'main.upload'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.url_map.converters['id_slug'] = IDSlugConverter
+
+api  = Api(app)
 
 ckeditor = CKEditor(app)
 login_manager = LoginManager()
@@ -69,6 +73,9 @@ def main_func():
             next_run_time=datetime.now()  # Start immediately first time
         )
         scheduler.start()
+    api.add_resource(PageListResource, '/api/pages')
+    # для одного объекта
+    api.add_resource(PageResource, '/api/pages/<page_id>')
     '''print("gn][rle]rm")
     db_sess = db_session.create_session()
     chel = User(username='prosto_chel', email='perega_sirat')
@@ -313,7 +320,7 @@ def page_delete(id):
         db_sess = db_session.create_session()
         page = db_sess.query(Page).filter(Page.id == id).first()
         if page:
-            page_file_delete(app, id)
+            page_file_delete(app.config['UPLOAD_FOLDER'], id)
             # здесь вызов функции удаления всех картинок
             for old in page.history_versions:
                 db_sess.delete(old)

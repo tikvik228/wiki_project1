@@ -47,7 +47,7 @@ def cleanup_orphaned_uploads(app):
                     app.logger.error(f"Error deleting {filename}: {e}")
 
 
-def page_file_delete(app, id):
+def page_file_delete(upload_folder, id):
     db_sess = db_session.create_session()
     page = db_sess.query(Page).filter(Page.id == id).first()
     all_image_urls = set()
@@ -56,16 +56,16 @@ def page_file_delete(app, id):
     all_image_urls.update(findall(r'src="([^"]+)"', page.content))
 
     for url in all_image_urls:
-        if url.startswith('/files/'):  # Only delete files from your upload folder
+        if url.startswith('/files/'):
             encoded_filename = url.split('/files/')[-1]
             decoded_filename = unquote(encoded_filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], decoded_filename)
+            file_path = os.path.join(upload_folder, decoded_filename)
             try:
                 if os.path.exists(file_path):
                     os.remove(file_path)
                     #file_in_db = db_sess.query(Uploads).
-                    app.logger.info(f"Deleted file: {file_path}")
+                    print(f"Deleted file: {file_path}")
                 else:
-                    app.logger.warning(f"File not found: {file_path}")
+                    print(f"File not found: {file_path}")
             except Exception as e:
-                app.logger.error(f"Error deleting file {file_path}: {e}")
+                print(f"Error deleting file {file_path}: {e}")
