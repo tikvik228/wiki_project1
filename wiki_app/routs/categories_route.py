@@ -1,35 +1,24 @@
-import os
-from datetime import datetime
-from shutil import rmtree
+from flask import Blueprint, render_template, request, url_for, abort, redirect, flash
+from flask_login import current_user, login_required
+from sqlalchemy import func
 
-from PIL import Image
-from flask import Blueprint, render_template, current_app, send_from_directory, request, url_for, abort, redirect, flash
-from flask_ckeditor import upload_fail, upload_success
-from flask_login import current_user, login_required, login_user, logout_user
-from sqlalchemy import desc, func
-
-from main import login_manager
 from wiki_app.data import db_session
-from wiki_app.data.models.users import User
-from wiki_app.data.models.pages import Page
 from wiki_app.data.models.categories import Category
-from wiki_app.data.models.history_pages import HistoryPage
-from wiki_app.data.models.uploads_model import Uploads
 from wiki_app.data.forms.category_form import CategForm
-from wiki_app.data.forms.login_form import LoginForm
-from wiki_app.data.forms.user_form import UserForm
 
 
 categories = Blueprint('categories', __name__, )
 
 @categories.route('/categories')
 def all_categories():
+    '''все категории'''
     db_sess = db_session.create_session()
     categs = db_sess.query(Category).order_by(func.lower(Category.name)).all()
     return render_template('all_categories.html', categs=categs)
 
-@categories.route('/categories/<id_slug:id>')
+@categories.route('/categories/<id_slug(attr="name"):id>')
 def show_category(id):
+    '''конкретная категория'''
     db_sess = db_session.create_session()
     ctg = db_sess.query(Category).filter(Category.id == id).first()
     return render_template('category.html', category=ctg)
@@ -37,6 +26,7 @@ def show_category(id):
 @categories.route('/create_category', methods=['GET', 'POST'])
 @login_required
 def add_category():
+    '''создать категорию'''
     add_form = CategForm()
     if add_form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -50,9 +40,10 @@ def add_category():
         return redirect(url_for('categories.show_category', id=categ))
     return render_template('add_categ.html', title='Добавление категории', form=add_form)
 
-@categories.route('/categories/<id_slug:id>/edit', methods=['GET', 'POST'])
+@categories.route('/categories/<id_slug(attr="name"):id>/edit', methods=['GET', 'POST'])
 @login_required
 def category_edit(id):
+    '''изменение категории'''
     form = CategForm()
     db_sess = db_session.create_session()
     categ = db_sess.query(Category).filter(Category.id == id).first()
@@ -68,10 +59,11 @@ def category_edit(id):
     return render_template('add_categ.html', title=f'Редактирование {categ.name}', form=form)
 
 
-@categories.route('/categories/<id_slug:id>/delete', methods=['GET', 'POST'])
+@categories.route('/categories/<id_slug(attr="name"):id>/delete', methods=['GET', 'POST'])
 @login_required
 def category_delete(id):
-    if current_user.role != 'admin':
+    '''удаление категории'''
+    if current_user.role != 'admin': # удалять категории можно только админам
         flash('у вас недостаточно прав для этого действия', 'warning')
     else:
         db_sess = db_session.create_session()

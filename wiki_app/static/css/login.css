@@ -42,8 +42,12 @@
             color: #faeedd;
             background-color: #e32636;
         }
+.form-control:focus {
+            border-color: #9a0808;
+            box-shadow: 0 0 0 0.25rem rgba(237, 25, 25, 0.25);
+        }
 
-        /* Overlay to darken the background image */
+        /* Затемнение фона */
         body::before {
             content: "";
             position: fixed;

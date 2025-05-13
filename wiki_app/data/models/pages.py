@@ -7,7 +7,10 @@ from sqlalchemy_serializer import SerializerMixin
 
 
 class Page(SqlAlchemyBase, UserMixin, SerializerMixin):
+    '''Модель страницы, поле history_versions хранит список всех версий этой страницы,
+    поле categories - список всех ее категорий'''
     __tablename__ = "pages"
+    __searchable__ = ['title', 'content']
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     title = sqlalchemy.Column(sqlalchemy.String(120), unique=True)
     content = sqlalchemy.Column(sqlalchemy.Text, nullable=True)
@@ -19,3 +22,5 @@ class Page(SqlAlchemyBase, UserMixin, SerializerMixin):
 
     def __repr__(self):
         return self.title
+
+#search.register_model(Page)

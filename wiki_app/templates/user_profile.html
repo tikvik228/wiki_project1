@@ -10,7 +10,7 @@
                 <div class="col-md-6">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h5>User's Edits</h5>
+                            <h5>Правки пользователя</h5>
                         </div>
                         <div class="card-body">
                             {% if user.edits %}
@@ -19,14 +19,14 @@
                                         {% if not edit.is_rollback %}
                                         <li class="list-group-item">
                                             <a href="{{ url_for('pages.show_old_page', old_id=edit) }}">
-                                                {{ edit.title }} from {{ edit.modified_date.strftime('%Y-%m-%d') }}
+                                                {{ edit.title }} от {{ edit.modified_date.strftime('%Y-%m-%d') }}
                                             </a>
                                         </li>
                                         {% endif %}
                                     {% endfor %}
                                 </ul>
                             {% else %}
-                                <p class="text-muted">No edits yet.</p>
+                                <p class="text-muted">Правок пока нет.</p>
                             {% endif %}
                         </div>
                     </div>
@@ -36,7 +36,7 @@
                 <div class="col-md-6">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h5>User's Files</h5>
+                            <h5>Файлы пользователя</h5>
                         </div>
                         <div class="card-body">
                             {% if user.files %}
@@ -50,7 +50,7 @@
                                     {% endfor %}
                                 </ul>
                             {% else %}
-                                <p class="text-muted">No files uploaded yet.</p>
+                                <p class="text-muted">Пользователь пока не загрузил ни одного файла.</p>
                             {% endif %}
                         </div>
                     </div>
@@ -89,11 +89,11 @@
                         <p class="text-secondary">{{ user.email }}</p>
                     {% endif %}
 
-                    <p class="text-muted">{{ user.about or "No information provided" }}</p>
+                    <p class="text-muted">{{ user.about or "Информация отсутсвует." }}</p>
 
                     <div class="text-left mt-4">
-                        <p><strong>Role:</strong> {{ user.role }}</p>
-                        <p><strong>Member since:</strong> {{ user.created_date.strftime('%Y-%m-%d') }}</p>
+                        <p><strong>Роль:</strong> {{ user.role }}</p>
+                        <p><strong>Дата регистрации:</strong> {{ user.created_date.strftime('%Y-%m-%d') }}</p>
                     </div>
                 </div>
             </div>

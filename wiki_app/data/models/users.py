@@ -8,6 +8,8 @@ from sqlalchemy_serializer import SerializerMixin
 
 
 class User(SqlAlchemyBase, UserMixin, SerializerMixin):
+    '''модель юзера, имеет поля со списками всех эдитов которые сделал юзер и всех файлов
+    которые он загрузил. Метод is_admin проверяет является ли юзер админом'''
     __tablename__ = "users"
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     username = sqlalchemy.Column(sqlalchemy.String(60), unique=True)

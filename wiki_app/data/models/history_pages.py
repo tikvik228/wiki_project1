@@ -7,6 +7,8 @@ from sqlalchemy_serializer import SerializerMixin
 
 
 class HistoryPage(SqlAlchemyBase, UserMixin, SerializerMixin):
+    '''Модель всех прошлых версий всех страниц, имеет связь с моделью юзеров и страниц
+    (кто создал версию, страница в текущих страницах)'''
     __tablename__ = "history_pages"
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     title = sqlalchemy.Column(sqlalchemy.String(120))

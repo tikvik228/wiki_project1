@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2>Search Results</h2>
+
+    <div class="row">
+        <!-- Users Column -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5>Пользователи</h5>
+                </div>
+                <div class="card-body">
+                    {% if users %}
+                        <ul class="list-group">
+                            {% for user in users %}
+                                <li class="list-group-item">
+                                    <a href="{{ url_for('users.show_user', id=user) }}" class="text-decoration-none">
+                                        {{ user.username }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">Пользователи не найдены</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Pages Column -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5>Страницы</h5>
+                </div>
+                <div class="card-body">
+                    {% if pages %}
+                        <ul class="list-group">
+                            {% for page in pages %}
+                                <li class="list-group-item">
+                                    <a href="{{ url_for('pages.show_page', id=page) }}" class="text-decoration-none">
+                                        {{ page.title }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">Страницы не найдены</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Column -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5>Категории</h5>
+                </div>
+                <div class="card-body">
+                    {% if categories %}
+                        <ul class="list-group">
+                            {% for category in categories %}
+                                <li class="list-group-item">
+                                    <a href="{{ url_for('categories.show_category', id=category) }}" class="text-decoration-none">
+                                        {{ category.name }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">Категории не найдены</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -14,6 +14,7 @@ def func_categ():
         db_sess.close()
 
 class PageForm(FlaskForm):
+    '''поле категорий показывает полученные из бд категории'''
     title = StringField('название статьи', validators=[DataRequired()])
     content = CKEditorField('контент', validators=[DataRequired()])
     categories = QuerySelectMultipleField('выберете категории',

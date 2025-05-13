@@ -1,4 +1,3 @@
-import datetime
 import sqlalchemy
 from flask_login import UserMixin
 from sqlalchemy import orm
@@ -25,6 +24,8 @@ history_association_table = sqlalchemy.Table(
 
 
 class Category(SqlAlchemyBase, UserMixin, SerializerMixin):
+    '''Модель категорий, связанная с моделями страниц и старых версий страниц через вспомогательные
+    таблицы association и history_association (тк связь многие ко многим)'''
     __tablename__ = "categories"
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String(120), unique=True)

@@ -2,11 +2,8 @@ from slugify import slugify
 from werkzeug.routing import BaseConverter
 
 class IDSlugConverter(BaseConverter):
-    """Matches an int id and optional slug, separated by "/".
-
-    :param attr: name of field to slugify, or None for default of str(instance)
-    :param length: max length of slug when building url
-    """
+    '''соединяет через / id и слаг, за который отвечает параметр attr
+    параметр length отвечает за максимальную возможную длину слага'''
 
     regex = r'-?\d+(?:/[\w\-]*)?'
 

@@ -1,5 +1,5 @@
 from wiki_app.data import db_session
-from flask import jsonify
+from flask import jsonify, current_app
 from flask_restful import Resource, abort
 from wiki_app.data.models.pages import Page
 from wiki_app.data.models.users import User
@@ -8,8 +8,6 @@ from wiki_app.data.models.history_pages import HistoryPage
 from wiki_app.api.page_reqparse import page_parser
 from datetime import datetime
 from wiki_app.data.utils.uploads_delete_funcs import page_file_delete
-
-upload_dir = 'static/image/uploads'
 
 def abort_if_page_not_found(page_id):
     session = db_session.create_session()
@@ -37,7 +35,7 @@ class MyResource(Resource):
         }
 
     def _create_history_version(self, page, user_id, categories, sess):
-        """"""
+        """отдельная функция для создания старой версии"""
         history = HistoryPage(
             title=page.title,
             content=page.content,
@@ -53,7 +51,7 @@ class MyResource(Resource):
 
 
 class PageResource(MyResource):
-    '''класс для операций с одной работой'''
+    '''класс для операций с одной страницей'''
     def get(self, page_id):
         abort_if_page_id_not_int(page_id)
         abort_if_page_not_found(page_id)
@@ -78,7 +76,6 @@ class PageResource(MyResource):
         page.last_modified_user_id = args.user_id
         page.modified_date = datetime.now()
 
-        print("ok")
         if args.category_id is not None:
             categories = db_sess.query(Category).filter(Category.id.in_(args.category_id)).all()
             page.categories = categories
@@ -97,7 +94,7 @@ class PageResource(MyResource):
         abort_if_page_not_found(page_id)
         db_sess = db_session.create_session()
         page = db_sess.query(Page).get(page_id)
-        page_file_delete(upload_dir, page_id)
+        page_file_delete(current_app.config['UPLOAD_FOLDER'], page_id)
         for old in page.history_versions:
             db_sess.delete(old)
         db_sess.delete(page)
@@ -107,6 +104,7 @@ class PageResource(MyResource):
 
 
 class PageListResource(MyResource):
+    """класс для операций со всеми страницами """
     def get(self):
         db_sess = db_session.create_session()
         page_list = db_sess.query(Page).all()
@@ -114,11 +112,10 @@ class PageListResource(MyResource):
                                  for i in page_list]})
 
     def post(self):
-        """Create new page with initial history version"""
         args = page_parser.parse_args()
         db_sess = db_session.create_session()
 
-        # Validate unique title
+
         if db_sess.query(Page).filter(Page.title == args.title).first():
             abort(409, message="Такое название стрницы уже есть")
 
@@ -130,15 +127,13 @@ class PageListResource(MyResource):
             modified_date=datetime.now()
         )
 
-        # Handle categories
         if args.category_ids:
             categories = db_sess.query(Category).filter(Category.id.in_(args.category_ids)).all()
             page.categories = categories
 
         db_sess.add(page)
-        db_sess.flush()  # Get page ID before creating history
+        db_sess.flush()
 
-        # Create initial history version
         self._create_history_version(
             page=page,
             user_id=args.user_id,

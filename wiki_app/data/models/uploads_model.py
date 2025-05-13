@@ -1,4 +1,3 @@
-import datetime
 import sqlalchemy
 from flask_login import UserMixin
 from sqlalchemy import orm
@@ -7,6 +6,7 @@ from sqlalchemy_serializer import SerializerMixin
 
 
 class Uploads(SqlAlchemyBase, UserMixin, SerializerMixin):
+    '''Модель для загруженных файлов'''
     __tablename__ = "uploads"
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     filename = sqlalchemy.Column(sqlalchemy.String)

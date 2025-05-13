@@ -5,6 +5,7 @@ from flask_login import login_required, current_user
 
 
 class DashBoardView(AdminIndexView):
+    '''главная страница в кабинете администратора'''
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin
 
@@ -23,6 +24,7 @@ class DashBoardView(AdminIndexView):
 
 
 class AnyPageView(BaseView):
+    '''в кабинете - вкладка "на Главную"'''
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin
 
@@ -40,6 +42,7 @@ class AnyPageView(BaseView):
 
 
 class MyModelView(ModelView):
+    '''родительский класс для всех вью моделей - юзер, страница, категория'''
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin
 

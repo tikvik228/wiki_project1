@@ -1,54 +1,82 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-<main>
-<div class="container-fluid">
-<h1>Приветственный текст этой вики по HFIM</h1>
-    Полезные ссылки:
-    <ul class="checkmark">
-        <li><a href="https://store.steampowered.com/app/1854430/How_Fish_Is_Made/">Игра в стиме</a></li>
-        <li><a href="#">X Wrong Organ</a></li>
-    </ul>
-    Основные категории:
-        <ul class="checkmark">
-        <li><a href="/categories/characters">Персонажи</a></li>
-        <li><a href="/categories/locations">Локации</a></li>
-        <li><a href="/categories/lore">Лор</a></li>
-        <li><a href="/categories/dlc">Контент DLC</a></li>
-    </ul>
-        Статистика Вики:
-        <ul class="checkmark">
-        <li>Кол-во страниц: N</li>
-        <li>Кол-во пользователей: N</li>
-        <li>Кол-во медиафайлов: N</li>
-    </ul>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    РЫБА НАУЧИТ<br>
-    <br>
+<div class="container mt-4">
+    <div class="row">
+        <!-- Main content column -->
+        <div class="col-md-8">
+            <!-- Welcome section -->
+            <section class="welcome-section mb-4 p-4 bg-light rounded">
+                <h1 class="display-4">Добро пожаловать на {{ wiki_name }}!</h1>
+                <p class="lead">Эта вики посвящена {{ topic }}</p>
+                <hr class="my-4">
+                <p>Вики содержит {{ article_count }} страниц и расширяется дальше. Зарегистрируйся, чтобы поучаствовать в ее создании.</p>
+                {% if current_user.is_authenticated %}
+                <a class="btn btn-primary btn-lg" href="{{ url_for('pages.add_page') }}" role="button">Создать новую страницу</a>
+                {% else %}
+                <a class="btn btn-primary btn-lg" href="{{ url_for('users.register') }}" role="button">Создать новую страницу</a>
+                {% endif %}
 
+            </section>
+
+
+            <!-- Game trailer section -->
+            <section class="trailer-section mb-4">
+                <h2 class="border-bottom pb-2">Трейлер игры</h2>
+                <div class="ratio ratio-16x9">
+                    <iframe src="https://video.cloudflare.steamstatic.com/store_trailers/257075954/movie_max_vp9.webm?t=1735308584" allowfullscreen></iframe>
+                </div>
+            </section>
+
+            <!-- Popular articles -->
+            <section class="popular-articles">
+                <h2 class="border-bottom pb-2">Недавно правленные</h2>
+                <div class="row">
+                    {% for article in popular_articles %}
+                    <div class="col-sm-6 col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ article.title }}</h5>
+                                <a href="{{ url_for('pages.show_page', id=article) }}" class="btn btn-sm btn-outline-secondary">Читать</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+
+        <!-- Sidebar column -->
+        <div class="col-md-4">
+            <!-- Search box -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Поиск</h5>
+                    <form action="{{ url_for('pages.search') }}" method="GET">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search..." name="q">
+                            <button class="btn btn-primary" type="submit">Go</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Wiki statistics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Статистика</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li><strong>Страниц:</strong> {{ stats.articles }}</li>
+                        <li><strong>Правок:</strong> {{ stats.edits }}</li>
+                        <li><strong>Пользователей:</strong> {{ stats.users }}</li>
+                        <li><strong>Изображений:</strong> {{ stats.images }}</li>
+                    </ul>
+                    <small class="text-muted">Обновлено: {{ stats.last_update }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-</main>
-{% endblock content %}
+{% endblock %}
